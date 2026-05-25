@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Login System</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 350px; }
+        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #218838; }
+        .toggle-link { text-align: center; margin-top: 15px; font-size: 14px; color: #007bff; cursor: pointer; }
+        .message { text-align: center; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 id="form-title">Login</h2>
+    
+    <input type="text" id="username" placeholder="Username" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button id="submit-btn" onclick="handleSubmit()">Sign In</button>
+    
+    <div class="toggle-link" id="toggle-text" onclick="toggleForm()">Don't have an account? Register here</div>
+    <div class="message" id="msg-box"></div>
+</div>
+
+<script>
+    let isLoginView = true;
+
+    function toggleForm() {
+        isLoginView = !isLoginView;
+        document.getElementById("form-title").innerText = isLoginView ? "Login" : "Register";
+        document.getElementById("submit-btn").innerText = isLoginView ? "Sign In" : "Sign Up";
+        document.getElementById("toggle-text").innerText = isLoginView ? "Don't have an account? Register here" : "Already have an account? Login here";
+        document.getElementById("msg-box").innerText = "";
+    }
+
+    async function handleSubmit() {
+        const userField = document.getElementById("username").value.trim();
+        const passField = document.getElementById("password").value.trim();
+        const msgBox = document.getElementById("msg-box");
+
+        // Basic Frontend Input Validation
+        if (!userField || !passField) {
+            msgBox.style.color = "red";
+            msgBox.innerText = "All fields are required!";
+            return;
+        }
+
+        const endpoint = isLoginView ? "/api/auth/login" : "/api/auth/register";
+        
+        try {
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: userField, password: passField })
+            });
+
+            const data = await response.text();
+
+            if (response.ok) {
+                msgBox.style.color = "green";
+                msgBox.innerText = data;
+                
+                if (isLoginView) {
+                    // Session Management: Store login session flag locally
+                    localStorage.setItem("session_user", userField);
+                    // Redirect to secure dashboard
+                    setTimeout(() => { window.location.href = "dashboard.html"; }, 1000);
+                } else {
+                    // Switch back to login form after registration
+                    setTimeout(() => { toggleForm(); }, 1500);
+                }
+            } else {
+                msgBox.style.color = "red";
+                msgBox.innerText = data;
+            }
+        } catch (error) {
+            msgBox.style.color = "red";
+            msgBox.innerText = "Server connection failed.";
+        }
+    }
+</script>
+</body>
+</html>

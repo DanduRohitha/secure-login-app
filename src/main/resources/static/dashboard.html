@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #e9ecef; padding: 50px; text-align: center; }
+        .dashboard-box { background: white; padding: 40px; border-radius: 8px; max-width: 500px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { color: #28a745; }
+        .logout-btn { background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 20px; }
+        .logout-btn:hover { background-color: #c82333; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-box">
+    <h1>Access Granted!</h1>
+    <h2>Welcome to your Secure Profile, <span id="display-name"></span>!</h2>
+    <p>This information is protected behind an authentication wall.</p>
+    
+    <button class="logout-btn" onclick="handleLogout()">Logout Session</button>
+</div>
+
+<script>
+    // Access Middleware Verification: Check if active user session metadata exists
+    const currentUser = localStorage.getItem("session_user");
+    
+    if (!currentUser) {
+        // Force redirect unauthorized traffic back to login if they try to bypass manually
+        alert("Access Denied! Please login first.");
+        window.location.href = "index.html";
+    } else {
+        document.getElementById("display-name").innerText = currentUser;
+    }
+
+    function handleLogout() {
+        // Clear active user session metadata completely
+        localStorage.removeItem("session_user");
+        alert("Logged out successfully!");
+        window.location.href = "index.html";
+    }
+</script>
+</body>
+</html>
